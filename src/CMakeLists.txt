@@ -27,7 +27,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 # Testing
-add_executable(basket_amer basket_amer.cpp)
+add_executable(basket_amer basket_amer.cpp BlackScholes.cpp LongstaffSchwartz.cpp)
 target_link_libraries(basket_amer ${LIBS})
 
 
