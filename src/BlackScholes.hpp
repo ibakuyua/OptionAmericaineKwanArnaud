@@ -7,6 +7,10 @@
 class BlackScholes {
 private:
     PnlMat *cholCorrelMatrix; /// Matrix of cholesky correlation matrix
+    PnlVect *Gi; /// For the gaussian vector at each time
+    PnlVect *LGi; /// Multiplication between L (cholCorrelMatrix) and Gi
+    PnlVect *St; /// The spot at t
+    PnlVect *valuet_iminus1; /// The value at tiMinus1 used in simulation at t
 public:
     /// Members
     int nbAsset; /// Number of asset
@@ -45,7 +49,7 @@ public:
      * @param path : the simulate path
      * @param nbStep : the number of step
      */
-    void simulate(PnlMat *path, int nbStep) const;
+    void simulate(PnlMat *path, int nbStep);
 
     /**
      * simulate : permit to simulate a blackscholes path at t
@@ -55,7 +59,7 @@ public:
      * @param path : the simulate path
      * @param nbStep : the number of step
      */
-    void simulate(double t, PnlMat *past, PnlMat *path, int nbStep) const;
+    void simulate(double t, PnlMat *past, PnlMat *path, int nbStep);
 
 };
 
