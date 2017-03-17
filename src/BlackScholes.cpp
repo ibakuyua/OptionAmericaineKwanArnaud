@@ -1,6 +1,6 @@
 #include "BlackScholes.hpp"
 
-void BlackScholes::simulate(PnlMat *path, int nbStep) {
+void BlackScholes::simulate(PnlMat *path, int nbStep) const{
     // Initialization
     double step = maturity/(double)nbStep;
     double sqrtStep = sqrt(step);
@@ -8,7 +8,7 @@ void BlackScholes::simulate(PnlMat *path, int nbStep) {
 
 }
 
-void BlackScholes::simulate(double t, PnlMat *past, PnlMat *path, int nbStep) {
+void BlackScholes::simulate(double t, PnlMat *past, PnlMat *path, int nbStep) const{
     if (t == 0. || past == NULL)
         simulate(path,nbStep);
 

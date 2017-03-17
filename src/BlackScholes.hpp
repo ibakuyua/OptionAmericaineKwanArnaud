@@ -6,16 +6,16 @@
 
 class BlackScholes {
 private:
-    PnlMat *cholCorrelMatrix;
+    PnlMat *cholCorrelMatrix; /// Matrix of cholesky correlation matrix
 public:
     /// Members
-    int nbAsset;
-    double maturity;
-    double frr;
-    PnlVect *dividends;
-    PnlVect *volatilities;
-    PnlVect *spots;
-    PnlRng *rng;
+    int nbAsset; /// Number of asset
+    double maturity; /// Maturity
+    double frr; /// Free risk rate
+    PnlVect *dividends; /// Dividend for each asset
+    PnlVect *volatilities; /// Volatility for each asset
+    PnlVect *spots; /// Spot t=0 for each asset
+    PnlRng *rng; /// Random generator
 
     /// Constructor / Destructor
     /**
@@ -45,7 +45,7 @@ public:
      * @param path : the simulate path
      * @param nbStep : the number of step
      */
-    void simulate(PnlMat *path, int nbStep);
+    void simulate(PnlMat *path, int nbStep) const;
 
     /**
      * simulate : permit to simulate a blackscholes path at t
@@ -55,7 +55,7 @@ public:
      * @param path : the simulate path
      * @param nbStep : the number of step
      */
-    void simulate(double t, PnlMat *past, PnlMat *path, int nbStep);
+    void simulate(double t, PnlMat *past, PnlMat *path, int nbStep) const;
 
 };
 
