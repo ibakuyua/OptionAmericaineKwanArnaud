@@ -11,7 +11,7 @@ public:
      * @param path : a path for the underlying assets
      * @return the payoff with this path
      */
-    virtual double payoff(PnlMat *path) const = 0;
+    virtual double payoff(PnlMat *path, int timeIndex = path->m - 1) const = 0;
 };
 
 
