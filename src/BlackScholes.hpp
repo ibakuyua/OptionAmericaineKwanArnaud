@@ -1,0 +1,10 @@
+#ifndef PROJECT_BLACKSCHOLES_HPP
+#define PROJECT_BLACKSCHOLES_HPP
+
+
+class BlackScholes {
+
+};
+
+
+#endif //PROJECT_BLACKSCHOLES_HPP

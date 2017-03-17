@@ -1,0 +1,10 @@
+#ifndef PROJECT_LONGSTAFFSCHWARTZ_HPP
+#define PROJECT_LONGSTAFFSCHWARTZ_HPP
+
+
+class LongstaffSchwartz {
+
+};
+
+
+#endif //PROJECT_LONGSTAFFSCHWARTZ_HPP
