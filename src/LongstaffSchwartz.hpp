@@ -10,6 +10,8 @@
 class LongstaffSchwartz {
 private:
     PnlMat *path; /// Path for each simulation
+    PnlMat *path_P; /// Path for P during computing tau_0
+    PnlMat *past; /// Past for each step to compute tau_0
     double discount_factor;
 
     /**
@@ -18,7 +20,7 @@ private:
      * @param path : the simulating path
      * @return flow for american option
      */
-    double ComputeAmericanFlow(PnlMat *path) const;
+    double ComputeAmericanFlow() const;
 
     /**
      * ComputeTau0 : permit to compute Tau_0 in an american option for a path
@@ -27,14 +29,24 @@ private:
      *
      * @return tau_0 for the american option
      */
-    double ComputeTau0(PnlMat *path) const;
+    double ComputeTau0() const;
+
+    /**
+     * ComputeP : permit to compute the Bermudian price at ti
+     * @param index : the index time to price (time = index * step)
+     * @param path : simulation for the past values
+     *
+     * @return the bermudian price of the option
+     */
+    double ComputeP(int index) const;
 public:
     /// Members
     Option *option; /// The option to price
     BlackScholes *model; /// The BS model to compute path
     int nbSample; /// Sample number for monte carlo method
     int nbStep; /// Number of step for the simulation
-    /// Constructor
+
+    /// Constructor / Destructor
     /**
      * LongstaffSchwartz : constructor
      *
@@ -44,6 +56,8 @@ public:
      * @param nbSample : sample number for monte carlo method
      */
     LongstaffSchwartz(Option *option, BlackScholes *model, int nbStep, int nbSample = NBSAMPLE_DEFAULT);
+    ~LongstaffSchwartz();
+
     /// Methods
     /**
      * European_price : Give the european price at 0 for the option
