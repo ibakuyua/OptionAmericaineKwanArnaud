@@ -12,7 +12,7 @@ public:
     /// Constructor
     BasketPut(PnlVect *weights, double strike);
     /// Virtual method
-    virtual double payoff(PnlMat *path, int timeIndex = path->m - 1) const;
+    virtual double payoff(PnlMat *path, int timeIndex) const;
 };
 
 

@@ -9,9 +9,10 @@ public:
      * payoff : return the option payoff
      *
      * @param path : a path for the underlying assets
+     * @param timeIndex : pay off at which index time ? (time = index * step)
      * @return the payoff with this path
      */
-    virtual double payoff(PnlMat *path, int timeIndex = path->m - 1) const = 0;
+    virtual double payoff(PnlMat *path, int timeIndex) const = 0;
 };
 
 

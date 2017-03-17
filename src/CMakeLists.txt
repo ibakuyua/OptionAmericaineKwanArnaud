@@ -16,6 +16,11 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
 endif ()
 
+# Detect Boost
+set(Boost_NO_BOOST_CMAKE ON)
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
+message(STATUS "Boost include directory ${Boost_INCLUDE_DIR}")
 
 # Detect PNL
 set(CMAKE_PREFIX_PATH ../lib/pnl-1.7.5/build)
@@ -27,7 +32,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 # Testing
-add_executable(basket_amer basket_amer.cpp BlackScholes.cpp LongstaffSchwartz.cpp BasketPut.cpp)
+add_executable(basket_amer basket_amer.cpp BlackScholes.cpp LongstaffSchwartz.cpp BasketPut.cpp parser.cpp)
 target_link_libraries(basket_amer ${LIBS})
 
 

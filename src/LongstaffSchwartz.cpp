@@ -22,7 +22,7 @@ void LongstaffSchwartz::European_price(double &price, double &stddev) const {
     // Monte Carlo method
     for (int i = 0; i < nbSample; ++i) {
         model->simulate(path,nbStep);
-        flow = option->payoff(path);
+        flow = option->payoff(path,nbStep);
         espFlow += flow;
         varFlow += flow * flow;
     }
