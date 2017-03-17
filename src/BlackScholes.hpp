@@ -6,15 +6,37 @@
 
 class BlackScholes {
 private:
-    PnlMat *correlMatrix;
+    PnlMat *cholCorrelMatrix;
 public:
     /// Members
+    int nbAsset;
     double maturity;
     double frr;
     PnlVect *dividends;
     PnlVect *volatilities;
     PnlVect *spots;
     PnlRng *rng;
+
+    /// Constructor / Destructor
+    /**
+     * BlackScholes : constructor
+     *
+     * @param nbAsset : number of underlying asset
+     * @param maturity : maturity T
+     * @param frr : the free interest rate
+     * @param dividends : dividend for each asset
+     * @param volatilities : volatility for each asset
+     * @param spots : spot t=0 for each asset
+     * @param rng : the random generator
+     * @param correl : global correlation for underlying assets
+     */
+    BlackScholes(int nbAsset, double maturity, double frr,
+                 PnlVect *dividends, PnlVect *volatilities, PnlVect *spots,
+                 PnlRng *rng, double correl);
+    /**
+     * ~BlackScholes : destructor
+     */
+    ~BlackScholes();
 
     /// Methods
     /**
