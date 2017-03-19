@@ -3,6 +3,7 @@
 #include "LongstaffSchwartz.hpp"
 #include "parser.hpp"
 #include "BasketPut.hpp"
+#include "pnl/pnl_finance.h"
 
 using namespace std;
 
@@ -17,8 +18,9 @@ int main(int argc, char **argv){
     PnlVect *dividends = pnl_vect_create_from_scalar(size,0.);
     PnlVect *weights = pnl_vect_create_from_scalar(size,0.3333);
     int nbStep = 10;
-    int nbSamples = 1000;
+    int nbSamples = 10000;
     PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
+    pnl_rng_sseed(rng, std::time(NULL));
 
     Option * basketPut = new BasketPut(weights,strike);
     BlackScholes *bsmodel =
@@ -28,6 +30,7 @@ int main(int argc, char **argv){
 
     double prix, stddev;
     mc->American_price(prix,stddev);
+    //mc->European_price(prix,stddev);
 
     cout << "\nPRIX : " << prix << "\nSTDDEV : " << stddev << "\n";
 

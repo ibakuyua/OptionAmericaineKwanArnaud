@@ -9,7 +9,7 @@ void BlackScholes::simulate(PnlMat *path, int nbStep){
     for (int d = 0; d < path->n; ++d)
         PNL_MSET(path, 0, d, GET(spots,d));
     // Compute path
-    for (int i = 0; i < path->m; ++i) {
+    for (int i = 1; i < path->m; ++i) {
         pnl_vect_rng_normal(Gi, path->n, rng);
         LGi = pnl_mat_mult_vect(cholCorrelMatrix, Gi);
         for (int d = 0; d < path->n; ++d) {
@@ -99,7 +99,7 @@ BlackScholes::BlackScholes(int nbAsset, double maturity, double frr, PnlVect *di
     Gi = pnl_vect_new();
     LGi = pnl_vect_new();
     St = pnl_vect_new();
-    valuet_iminus1 = pnl_vect_new();
+    valuet_iminus1 = pnl_vect_create(nbAsset);
 }
 
 BlackScholes::~BlackScholes() {
