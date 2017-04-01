@@ -2,43 +2,32 @@
 #define PROJECT_LONGSTAFFSCHWARTZ_HPP
 
 
+#include <vector>
 #include "Option.hpp"
 #include "BlackScholes.hpp"
+#include "pnl/pnl_basis.h"
+
 
 #define NBSAMPLE_DEFAULT 10000
 
 class LongstaffSchwartz {
 private:
     PnlMat *path; /// Path for each simulation
-    PnlMat *path_P; /// Path for P during computing tau_0
     PnlMat *past; /// Past for each step to compute tau_0
     double discount_factor;
+    std::vector<PnlMat *> *All_trajectories; /// Vector of all path
+    int degree; /// Degree of the polynomial function
+
 
     /**
-     * ComputeAmericanFlow : permit to compute the american flow for a path and for the option
+     * getPayoffVect : permit to get the payoff Vector at time t
      *
-     * @param path : the simulating path
-     * @return flow for american option
+     * @param
      */
-    double ComputeAmericanFlow() const;
+    void getPayoffVect(PnlVect *pVect, std::vector<PnlMat *> *pVector, PnlMat *tau,
+                                          int t) const;
 
-    /**
-     * ComputeTau0 : permit to compute Tau_0 in an american option for a path
-     *
-     * @param path : the simulating path
-     *
-     * @return tau_0 for the american option
-     */
-    double ComputeTau0() const;
 
-    /**
-     * ComputeP : permit to compute the Bermudian price at ti
-     * @param index : the index time to price (time = index * step)
-     * @param path : simulation for the past values
-     *
-     * @return the bermudian price of the option
-     */
-    double ComputeP(int index) const;
 public:
     /// Members
     Option *option; /// The option to price
@@ -55,7 +44,7 @@ public:
      * @param nbStep : number of step for the simulation
      * @param nbSample : sample number for monte carlo method
      */
-    LongstaffSchwartz(Option *option, BlackScholes *model, int nbStep, int nbSample = NBSAMPLE_DEFAULT);
+    LongstaffSchwartz(Option *option, BlackScholes *model, int nbStep, int degree, int nbSample = NBSAMPLE_DEFAULT);
     ~LongstaffSchwartz();
 
     /// Methods

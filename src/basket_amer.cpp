@@ -19,6 +19,7 @@ int main(int argc, char **argv){
     PnlVect *weights = pnl_vect_create_from_scalar(size,0.3333);
     int nbStep = 10;
     int nbSamples = 10000;
+    int degree = 3;
     PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
     pnl_rng_sseed(rng, std::time(NULL));
 
@@ -26,7 +27,7 @@ int main(int argc, char **argv){
     BlackScholes *bsmodel =
             new BlackScholes(size,maturity,frr,dividends,volatilities,spots,rng,correlation);
 
-    LongstaffSchwartz *mc = new LongstaffSchwartz(basketPut, bsmodel,nbStep,nbSamples);
+    LongstaffSchwartz *mc = new LongstaffSchwartz(basketPut, bsmodel,nbStep,degree,nbSamples);
 
     double prix, stddev;
     mc->American_price(prix,stddev);

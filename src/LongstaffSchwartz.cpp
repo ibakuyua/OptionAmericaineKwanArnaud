@@ -1,18 +1,26 @@
 #include "LongstaffSchwartz.hpp"
 
-LongstaffSchwartz::LongstaffSchwartz(Option *option, BlackScholes *model,int nbStep, int nbSample)
-        : option(option), model(model), nbSample(nbSample), nbStep(nbStep)
+LongstaffSchwartz::LongstaffSchwartz(Option *option, BlackScholes *model,int nbStep, int degree, int nbSample)
+        : option(option), model(model), nbSample(nbSample), degree(degree), nbStep(nbStep)
 {
     discount_factor = exp(- model->frr * model->maturity);
     path = pnl_mat_new();
-    path_P = pnl_mat_new();
     past = pnl_mat_new();
+
+    All_trajectories = new std::vector<PnlMat *>(nbStep+1);
+    for(int i = 0; i < nbStep+1; ++i){
+        (*All_trajectories)[i] = pnl_mat_create(nbSample,model->nbAsset);
+    }
+
 }
 
 LongstaffSchwartz::~LongstaffSchwartz() {
     pnl_mat_free(&path);
-    pnl_mat_free(&path_P);
     pnl_mat_free(&past);
+    for(int i = 0; i < nbStep + 1; ++i){
+        pnl_mat_free(&(*All_trajectories)[i]);
+    }
+    delete All_trajectories;
 }
 
 void LongstaffSchwartz::European_price(double &price, double &stddev) const {
@@ -38,70 +46,88 @@ void LongstaffSchwartz::American_price(double &price, double &stddev) const {
     double flow, espFlow = 0., varFlow = 0.;
     // Resize
     pnl_mat_resize(path, nbStep + 1, model->nbAsset);
-    pnl_mat_resize(path_P, nbStep + 1, model->nbAsset);
-    // Monte Carlo method
-    for (int i = 0; i < nbSample; ++i) {
-        model->simulate(path,nbStep);
-        flow = ComputeAmericanFlow();
+
+    //Functions g for the polynomial base
+    PnlBasis *G = pnl_basis_create_from_degree(PNL_BASIS_CANONICAL, degree, model->nbAsset);
+    PnlVect *g_St = pnl_vect_new();
+
+
+    //Creation of tau matrix
+    PnlMat *tau = pnl_mat_create_from_scalar(nbSample, nbStep + 1,model->maturity);
+    //Vector of coefficient of polynom
+    PnlVect* alphaV = pnl_vect_new();
+    //Payoff Vector at tau
+    PnlVect* payoffVect = pnl_vect_new();
+    //TimeStep
+    double timeStep = model->maturity/(double)nbStep;
+
+    //Simulation of all trajectories
+    for (int i = 0; i < nbSample; i++) {
+        model->simulate((*All_trajectories)[i],nbStep,);
+    }
+
+    //For all possible execution dates
+    for (int n = nbStep - 1; n > 0; --n) {
+        //Getting payoff at tau_t+1
+        getPayoffVect(payoffVect,All_trajectories,tau,n+1);
+        //Finding the alpha that minimizes the squarred problems
+        //TODO : add the payoff function to the base L^2
+        pnl_basis_fit_ls(G,alphaV,(*All_trajectories)[n],payoffVect);
+        //Filling tau at time n
+        for (int i = 0; i < nbSample; ++i) {
+            double tn = n * timeStep;
+
+            double a = exp(- model->frr * tn) * option->payoff((*All_trajectories)[n],i);
+            pnl_mat_get_row(g_St,(*All_trajectories)[n],i);
+            //Getting scalar product alphaV * g
+            double b = pnl_basis_eval_vect(G,alphaV,g_St);
+
+            //Managing the indicatrix condition
+            MLET(tau,i,n) = (a>b)
+                            ? tn
+                            : MGET(tau,i,n+1);
+        }
+    }
+
+    //Finally doing MonteCarlo on price
+    for (int j = 0; j < nbSample; ++j) {
+        double tau_1 = MGET(tau,1,j);
+        double timeIndexForTau_1 = tau_1 / timeStep;
+        flow = exp(-model->frr * tau_1) * option->payoff((*All_trajectories)[timeIndexForTau_1],j);
         espFlow += flow;
         varFlow += flow * flow;
     }
-    //TODO finir avec la moyenne
+
     espFlow /= nbSample;
     varFlow /= nbSample;
     varFlow = fabs(varFlow - espFlow * espFlow);
 
     price = espFlow;
     stddev = sqrt(varFlow / (double) nbSample);
+
+    //At 0 we just compute payoff as a simple esperanza
+    double payoffAt0 = option->payoff((*All_trajectories)[0],0);
+
+    //Final price
+    price = (price > payoffAt0)
+            ? price
+            : payoffAt0;
+
+    //Freeing memory
+    pnl_basis_free(&G);
+    pnl_vect_free(&g_St);
+    pnl_mat_free(&tau);
+    pnl_vect_free(&alphaV);
+    pnl_vect_free(&payoffVect);
 }
 
-double LongstaffSchwartz::ComputeAmericanFlow() const{
-
-    double tau_0 = ComputeTau0();
-    int indexTau_0 = (int)(tau_0 * (double)nbStep / model->maturity);
-
-    return exp(- model->frr * tau_0) * option->payoff(path, indexTau_0);
-}
-
-double LongstaffSchwartz::ComputeTau0() const {
-    // past initialization
-    pnl_mat_clone(past,path);
-    // other initializations
-    double tau_i = model->maturity;
-    double ti, step = model->maturity / (double)nbStep;
-    double P_ti;
-    for (int i = nbStep - 1; i >= 0; --i) {
-        // Remove the last value of past
-        pnl_mat_resize(past, past->m - 1, past->n);
-        // Compute tau_i in function of tau_i+1
-        ti = i * step;
-        P_ti = ComputeP(ti);
-        tau_i = (P_ti - option->payoff(path,i) <= 0.)
-                ? ti
-                : tau_i;
+void LongstaffSchwartz::getPayoffVect(PnlVect *pVect, std::vector<PnlMat *> *pVector, PnlMat *tau,
+                                 int t) const {
+    for(int i = 0; i < pVect->size; ++i) {
+        double tau_i = MGET(tau,i,t);
+        double timeIndexForTau_i = tau_i * ((double)nbStep/model->maturity);
+        LET(pVect, i) = exp(-model->frr * tau_i)
+                      * option->payoff((*pVector)[timeIndexForTau_i],i);
     }
-    return tau_i;
 }
 
-double LongstaffSchwartz::ComputeP(int index) const {
-    // Initialization
-    int nbSampleP = nbSample / 100;
-    double ti = index * model->maturity/(double)nbStep;
-    double espflowCour = 0., espflowMax = -1;
-    // For each possible tau
-    for (int k = index; k < nbStep; ++k) {
-        espflowCour = 0.;
-        double tau_k = k * model->maturity/(double)nbStep;
-        for (int m = 0; m < nbSampleP; ++m) {
-            model->simulate(ti,past,path_P,nbStep);
-            espflowCour += option->payoff(path_P, k);
-        }
-        espflowCour /= nbSampleP;
-        espflowCour *= exp(- model->frr * (tau_k - ti));
-        // Looking for the max
-        if (espflowMax < espflowCour)
-            espflowMax = espflowCour;
-    }
-
-    return espflowMax;
-}
