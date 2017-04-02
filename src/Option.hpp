@@ -5,6 +5,9 @@
 
 class Option {
 public:
+    ///Members
+    PnlRnFuncR* rnFuncR; /// Function added to the base Polynomial
+
     /**
      * payoff : return the option payoff
      *

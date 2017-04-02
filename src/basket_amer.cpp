@@ -9,16 +9,16 @@ using namespace std;
 
 int main(int argc, char **argv){
     int size = 3;
-    double frr = 0.05;
     double strike = 100;
-    double maturity = 3.;
     PnlVect *spots = pnl_vect_create_from_scalar(size,100.);
+    double frr = 0.05;
+    double maturity = 3.;
     PnlVect *volatilities = pnl_vect_create_from_scalar(size,0.2);
     double correlation = 0.;
     PnlVect *dividends = pnl_vect_create_from_scalar(size,0.);
     PnlVect *weights = pnl_vect_create_from_scalar(size,0.3333);
     int nbStep = 10;
-    int nbSamples = 10000;
+    int nbSamples = 30000;
     int degree = 3;
     PnlRng *rng = pnl_rng_create(PNL_RNG_MERSENNE);
     pnl_rng_sseed(rng, std::time(NULL));
@@ -34,6 +34,17 @@ int main(int argc, char **argv){
     //mc->European_price(prix,stddev);
 
     cout << "\nPRIX : " << prix << "\nSTDDEV : " << stddev << "\n";
+
+    //Freeing memory
+    delete basketPut;
+    delete bsmodel;
+    delete mc;
+    pnl_rng_free(&rng);
+    pnl_vect_free(&weights);
+    pnl_vect_free(&dividends);
+    pnl_vect_free(&spots);
+    pnl_vect_free(&volatilities);
+
 
     return EXIT_SUCCESS;
 }

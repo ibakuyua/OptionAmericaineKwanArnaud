@@ -1,6 +1,7 @@
 #ifndef PROJECT_BLACKSCHOLES_HPP
 #define PROJECT_BLACKSCHOLES_HPP
 
+#include <vector>
 #include "pnl/pnl_matrix.h"
 #include "pnl/pnl_random.h"
 
@@ -60,6 +61,16 @@ public:
      * @param nbStep : the number of step
      */
     void simulate(double t, PnlMat *past, PnlMat *path, int nbStep);
+
+
+    /**
+     * simulateTrajectories : permit to simulate a blacksholes vector of path
+     *
+     * @param All_Trajectories : vector of simulated paths
+     * @param nbStep : the number of step
+     * @param wi : the index of the simulation
+     */
+     void simulateTrajectories(std::vector<PnlMat *> *All_Trajectories, int nbStep, int wi);
 
 };
 

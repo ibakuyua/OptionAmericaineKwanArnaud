@@ -1,5 +1,34 @@
 #include "BlackScholes.hpp"
 
+
+
+void BlackScholes::simulateTrajectories(std::vector<PnlMat *> *All_Trajectories, int nbStep, int wi) {
+    // Initialization
+    double step = maturity/(double)nbStep;
+    double sqrtStep = sqrt(step);
+    double sigma_d, Sd_tiMinus1, LdGi, Sd_ti;
+    // Spot initialization
+    for (int d = 0; d < nbAsset; ++d)
+        PNL_MSET((*All_Trajectories)[0], wi, d, GET(spots,d));
+    // Compute path
+    for (int i = 1; i < nbStep + 1; ++i) {
+        pnl_vect_rng_normal(Gi, nbAsset, rng);
+        LGi = pnl_mat_mult_vect(cholCorrelMatrix, Gi);
+        for (int d = 0; d < nbAsset; ++d) {
+            sigma_d = GET(volatilities,d);
+            Sd_tiMinus1 = PNL_MGET((*All_Trajectories)[i-1], wi, d);
+            LdGi = GET(LGi,d);
+
+            Sd_ti = Sd_tiMinus1 * exp((frr - sigma_d * sigma_d / 2) * step + sigma_d * sqrtStep * LdGi);
+            MLET((*All_Trajectories)[i],wi,d) = Sd_ti;
+        }
+    }
+}
+
+
+
+
+
 void BlackScholes::simulate(PnlMat *path, int nbStep){
     // Initialization
     double step = maturity/(double)nbStep;
@@ -109,3 +138,4 @@ BlackScholes::~BlackScholes() {
     pnl_vect_free(&St);
     pnl_vect_free(&valuet_iminus1);
 }
+
