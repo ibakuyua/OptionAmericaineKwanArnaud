@@ -2,7 +2,7 @@
 
 
 
-void BlackScholes::simulateTrajectories(std::vector<PnlMat *> *All_Trajectories, int nbStep, int wi) {
+void BlackScholes::simulatePath(std::vector<PnlMat *> *All_Trajectories, int nbStep, int wi) {
     // Initialization
     double step = maturity/(double)nbStep;
     double sqrtStep = sqrt(step);

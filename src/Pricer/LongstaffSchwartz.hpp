@@ -16,7 +16,7 @@ private:
     PnlMat *path; /// Path for each simulation
     PnlMat *past; /// Past for each step to compute tau_0
     double discount_factor;
-    std::vector<PnlMat *> *All_trajectories; /// Vector of all path
+    std::vector<PnlMat *> *All_path; /// Vector of all path
     int degree; /// Degree of the polynomial function
 
 

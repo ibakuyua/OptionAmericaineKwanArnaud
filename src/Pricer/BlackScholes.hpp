@@ -71,7 +71,7 @@ public:
      * @param nbStep : the number of step
      * @param wi : the index of the simulation
      */
-     void simulateTrajectories(std::vector<PnlMat *> *All_Trajectories, int nbStep, int wi);
+     void simulatePath(std::vector<PnlMat *> *All_Trajectories, int nbStep, int wi);
 
 };
 

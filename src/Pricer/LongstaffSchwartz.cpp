@@ -14,9 +14,9 @@ LongstaffSchwartz::LongstaffSchwartz(Option *option, BlackScholes *model,int nbS
     path = pnl_mat_new();
     past = pnl_mat_new();
 
-    All_trajectories = new std::vector<PnlMat *>(nbStep+1);
+    All_path = new std::vector<PnlMat *>(nbStep+1);
     for(int i = 0; i < nbStep+1; ++i){
-        (*All_trajectories)[i] = pnl_mat_create(nbSample,model->nbAsset);
+        (*All_path)[i] = pnl_mat_create(nbSample,model->nbAsset);
     }
 
 }
@@ -25,9 +25,9 @@ LongstaffSchwartz::~LongstaffSchwartz() {
     pnl_mat_free(&path);
     pnl_mat_free(&past);
     for(int i = 0; i < nbStep + 1; ++i){
-        pnl_mat_free(&(*All_trajectories)[i]);
+        pnl_mat_free(&(*All_path)[i]);
     }
-    delete All_trajectories;
+    delete All_path;
 }
 
 void LongstaffSchwartz::European_price(double &price, double &stddev) const {
@@ -85,26 +85,24 @@ void LongstaffSchwartz::American_price(double &price, double &stddev) const {
     double timeStep = model->maturity/(double)nbStep;
 
     //Simulation of all trajectories
-    for (int i = 0; i < nbSample; i++) {
-        model->simulateTrajectories(All_trajectories,nbStep,i);
-    }
+    for (int i = 0; i < nbSample; i++)
+        model->simulatePath(All_path, nbStep, i);
 
     //For all possible execution dates
     for (int n = nbStep - 1; n > 0; --n) {
         //Getting payoff at tau_t+1
-        getPayoffVect(payoffVect,All_trajectories,tau,n+1);
+        getPayoffVect(payoffVect,All_path,tau,n+1);
         //Finding the alpha that minimizes the squarred problems
         //Regression
-        pnl_basis_fit_ls(G,alphaV,(*All_trajectories)[n],payoffVect);
-
+        pnl_basis_fit_ls(G,alphaV,(*All_path)[n],payoffVect);
 
         //Filling tau at time n
         for (int i = 0; i < nbSample; ++i) {
             double tn = n * timeStep;
 
-            double c1 = exp(- model->frr * tn) * option->payoff((*All_trajectories)[n],i);
+            double c1 = exp(- model->frr * tn) * option->payoff((*All_path)[n],i);
             //Getting scalar product alphaV * g
-            pnl_mat_get_row(g_St,(*All_trajectories)[n],i);
+            pnl_mat_get_row(g_St,(*All_path)[n],i);
             double c2 = pnl_basis_eval_vect(G,alphaV,g_St);
 
             //Managing the indicatrix condition
@@ -118,7 +116,7 @@ void LongstaffSchwartz::American_price(double &price, double &stddev) const {
     for (int j = 0; j < nbSample; ++j) {
         double tau_1 = MGET(tau,j,1);
         double timeIndexForTau_1 = tau_1 / timeStep;
-        flow = exp(-model->frr * tau_1) * option->payoff((*All_trajectories)[timeIndexForTau_1],j);
+        flow = exp(-model->frr * tau_1) * option->payoff((*All_path)[timeIndexForTau_1],j);
         espFlow += flow;
         varFlow += flow * flow;
     }
@@ -131,7 +129,7 @@ void LongstaffSchwartz::American_price(double &price, double &stddev) const {
     stddev = sqrt(varFlow / (double) nbSample);
 
     //At 0 we just compute payoff as a simple esperanza
-    double payoffAt0 = option->payoff((*All_trajectories)[0],0);
+    double payoffAt0 = option->payoff((*All_path)[0],0);
 
     //Final price
     price = (price > payoffAt0)
