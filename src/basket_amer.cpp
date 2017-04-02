@@ -37,7 +37,7 @@ int main(int argc, char **argv){
     cout << "\nPRICE : " << prix << "\nSTDDEV : " << stddev << "\n";
 
     //Freeing memory
-    //delete basketPut;
+    //delete basketPut; //Problem il delete un truc abstrait il dit...
     delete bsmodel;
     delete mc;
     pnl_rng_free(&rng);
