@@ -11,6 +11,8 @@ public:
     double strike; /// The strike
     /// Constructor
     BasketPut(PnlVect *weights, double strike);
+    ///Destructor
+    ~BasketPut();
     /// Virtual method
     virtual double payoff(PnlMat *path, int timeIndex) const;
 };

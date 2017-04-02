@@ -46,3 +46,7 @@ BasketPut::BasketPut(PnlVect *weights, double strike)
     rnFuncR->F = pointer_payoff;
     rnFuncR->params = (void*) params;
 }
+
+BasketPut::~BasketPut() {
+    delete rnFuncR;
+}

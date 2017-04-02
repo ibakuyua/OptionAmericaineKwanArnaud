@@ -6,6 +6,7 @@
 #include "Option.hpp"
 #include "BlackScholes.hpp"
 #include "pnl/pnl_basis.h"
+#include "parser.hpp"
 
 
 #define NBSAMPLE_DEFAULT 10000

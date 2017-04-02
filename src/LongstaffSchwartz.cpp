@@ -1,4 +1,5 @@
 #include <pnl/pnl_mathtools.h>
+#include <iostream>
 #include "LongstaffSchwartz.hpp"
 
 
@@ -69,7 +70,7 @@ void LongstaffSchwartz::American_price(double &price, double &stddev) const {
     PnlVect*aV = pnl_vect_create_from_scalar(model->nbAsset,a);
     PnlVect*bV = pnl_vect_create_from_scalar(model->nbAsset,b);
     //Setting domain
-    pnl_basis_set_domain (G, aV, bV);
+    pnl_basis_set_domain (G, bV, aV);
 
     //Adding payoff function to the polynomial base G
     pnl_basis_add_function(G,option->rnFuncR);
@@ -85,7 +86,6 @@ void LongstaffSchwartz::American_price(double &price, double &stddev) const {
 
     //Simulation of all trajectories
     for (int i = 0; i < nbSample; i++) {
-        //model->simulate((*All_trajectories)[i],nbStep);
         model->simulateTrajectories(All_trajectories,nbStep,i);
     }
 
@@ -96,13 +96,15 @@ void LongstaffSchwartz::American_price(double &price, double &stddev) const {
         //Finding the alpha that minimizes the squarred problems
         //Regression
         pnl_basis_fit_ls(G,alphaV,(*All_trajectories)[n],payoffVect);
+
+
         //Filling tau at time n
         for (int i = 0; i < nbSample; ++i) {
             double tn = n * timeStep;
 
             double c1 = exp(- model->frr * tn) * option->payoff((*All_trajectories)[n],i);
-            pnl_mat_get_row(g_St,(*All_trajectories)[n],i);
             //Getting scalar product alphaV * g
+            pnl_mat_get_row(g_St,(*All_trajectories)[n],i);
             double c2 = pnl_basis_eval_vect(G,alphaV,g_St);
 
             //Managing the indicatrix condition
@@ -153,4 +155,3 @@ void LongstaffSchwartz::getPayoffVect(PnlVect *pVect, std::vector<PnlMat *> *pVe
                       * option->payoff((*pVector)[timeIndexForTau_i],i);
     }
 }
-
