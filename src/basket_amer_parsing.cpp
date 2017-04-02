@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     cout << "\nPRICE : " << prix << "\nSTDDEV : " << stddev << "\n";
 
     //Freeing memory
-    delete basketPut;
+    //delete basketPut;
     delete bsmodel;
     delete mc;
     pnl_rng_free(&rng);

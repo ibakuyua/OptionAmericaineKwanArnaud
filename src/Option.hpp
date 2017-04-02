@@ -1,6 +1,7 @@
 #ifndef PROJECT_OPTION_HPP
 #define PROJECT_OPTION_HPP
 
+#include <pnl/pnl_mathtools.h>
 #include "pnl/pnl_matrix.h"
 
 class Option {
