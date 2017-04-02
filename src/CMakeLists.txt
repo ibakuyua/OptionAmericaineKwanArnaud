@@ -23,20 +23,17 @@ include_directories(${Boost_INCLUDE_DIR})
 message(STATUS "Boost include directory ${Boost_INCLUDE_DIR}")
 
 # Detect PNL
-set(CMAKE_PREFIX_PATH ./lib/pnl-1.7.5/build)
+set(CMAKE_PREFIX_PATH ../lib/pnl-1.7.5/build)
 find_package(Pnl REQUIRED)
 set(LIBS ${LIBS} ${PNL_LIBRARIES})
-include_directories(./lib/pnl-1.7.5/build/include)
+include_directories(../lib/pnl-1.7.5/build/include)
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_definitions(-DPNL_RANGE_CHECK_OFF)
 endif()
 
 # Testing
-add_executable(basket_amer src/basket_amer.cpp src/BlackScholes.cpp src/LongstaffSchwartz.cpp src/BasketPut.cpp src/parser.cpp)
+add_executable(basket_amer basket_amer.cpp Pricer/BlackScholes.cpp Pricer/LongstaffSchwartz.cpp Option/BasketPut.cpp Parser/parser.cpp Option/Option.hpp)
 target_link_libraries(basket_amer ${LIBS})
-
-add_executable(basket_amer_parsing src/basket_amer_parsing.cpp src/BlackScholes.cpp src/LongstaffSchwartz.cpp src/BasketPut.cpp src/parser.cpp src/Option.hpp)
-target_link_libraries(basket_amer_parsing ${LIBS})
 
 
 # Print compiler flags

@@ -3,10 +3,10 @@
 
 
 #include <vector>
-#include "Option.hpp"
+#include "../Option/Option.hpp"
 #include "BlackScholes.hpp"
 #include "pnl/pnl_basis.h"
-#include "parser.hpp"
+#include "../Parser/parser.hpp"
 
 
 #define NBSAMPLE_DEFAULT 10000

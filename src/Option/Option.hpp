@@ -9,6 +9,9 @@ public:
     ///Members
     PnlRnFuncR* rnFuncR; /// Function added to the base Polynomial
 
+    ///Virtual destructor/constructor
+    inline virtual ~Option(){};
+
     /**
      * payoff : return the option payoff
      *

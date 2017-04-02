@@ -4,7 +4,7 @@
 #include <vector>
 #include "pnl/pnl_matrix.h"
 #include "pnl/pnl_random.h"
-#include "parser.hpp"
+#include "../Parser/parser.hpp"
 
 class BlackScholes {
 private:
